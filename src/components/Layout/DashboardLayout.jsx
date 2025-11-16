@@ -96,11 +96,12 @@ export default function DashboardLayout() {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)' }}>
       <Toolbar
         sx={{
-          background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+          background: 'linear-gradient(195deg, #49a3f1 0%, #1A73E8 100%)',
           color: 'white',
           minHeight: { xs: 64, sm: 80 },
           position: 'relative',
           overflow: 'hidden',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
           '&::before': {
             content: '""',
             position: 'absolute',
@@ -108,7 +109,7 @@ export default function DashboardLayout() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'radial-gradient(circle at top right, rgba(255,255,255,0.2) 0%, transparent 60%)',
+            background: 'radial-gradient(circle at top right, rgba(255,255,255,0.15) 0%, transparent 60%)',
           },
         }}
       >
@@ -160,44 +161,35 @@ export default function DashboardLayout() {
                   selected={isActive}
                   onClick={() => handleMenuClick(item.path)}
                   sx={{
-                    borderRadius: 3,
+                    borderRadius: 2,
                     py: 1.5,
                     px: 2,
-                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
                     position: 'relative',
-                    overflow: 'hidden',
+                    overflow: 'visible',
                     '&.Mui-selected': {
-                      background: `linear-gradient(135deg, ${alpha(item.color, 0.15)} 0%, ${alpha(item.color, 0.08)} 100%)`,
-                      color: item.color,
-                      fontWeight: 700,
+                      background: 'linear-gradient(195deg, #49a3f1 0%, #1A73E8 100%)',
+                      color: '#FFFFFF',
+                      fontWeight: 600,
+                      boxShadow: '0 4px 6px -1px rgba(33, 150, 243, 0.3), 0 2px 4px -1px rgba(33, 150, 243, 0.2)',
                       '&:hover': {
-                        background: `linear-gradient(135deg, ${alpha(item.color, 0.2)} 0%, ${alpha(item.color, 0.12)} 100%)`,
+                        background: 'linear-gradient(195deg, #42a3f1 0%, #1565C0 100%)',
+                        boxShadow: '0 6px 8px -1px rgba(33, 150, 243, 0.35), 0 3px 5px -1px rgba(33, 150, 243, 0.25)',
                       },
                       '& .MuiListItemIcon-root': {
-                        color: item.color,
-                      },
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        left: 0,
-                        top: '20%',
-                        bottom: '20%',
-                        width: '4px',
-                        borderRadius: '0 4px 4px 0',
-                        background: item.color,
+                        color: '#FFFFFF',
                       },
                     },
                     '&:hover': {
-                      backgroundColor: alpha(item.color, 0.06),
-                      transform: 'translateX(4px)',
+                      backgroundColor: '#F8F9FA',
                     },
                   }}
                 >
                   <ListItemIcon
                     sx={{
-                      color: isActive ? item.color : 'text.secondary',
+                      color: isActive ? '#FFFFFF' : 'text.secondary',
                       minWidth: 44,
-                      transition: 'all 0.2s',
+                      transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                   >
                     {item.icon}
@@ -222,11 +214,12 @@ export default function DashboardLayout() {
         <Box
           sx={{
             p: 2,
-            borderRadius: 3,
-            background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+            borderRadius: 2,
+            background: 'linear-gradient(195deg, #49a3f1 0%, #1A73E8 100%)',
             color: 'white',
             position: 'relative',
             overflow: 'hidden',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             '&::before': {
               content: '""',
               position: 'absolute',
@@ -235,7 +228,7 @@ export default function DashboardLayout() {
               width: '100px',
               height: '100px',
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
             },
           }}
         >
@@ -318,12 +311,14 @@ export default function DashboardLayout() {
               sx={{
                 width: 40,
                 height: 40,
-                background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                background: 'linear-gradient(195deg, #49a3f1 0%, #1A73E8 100%)',
                 fontWeight: 700,
                 cursor: 'pointer',
-                transition: 'all 0.2s',
+                transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 4px 6px -1px rgba(33, 150, 243, 0.3)',
                 '&:hover': {
-                  transform: 'scale(1.1)',
+                  transform: 'scale(1.05)',
+                  boxShadow: '0 6px 8px -1px rgba(33, 150, 243, 0.4)',
                 },
               }}
             >

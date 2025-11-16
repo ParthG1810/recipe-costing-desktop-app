@@ -82,28 +82,28 @@ export default function Dashboard() {
       title: 'Add Product',
       description: 'Add a new product with vendor pricing',
       icon: <AddCircleIcon sx={{ fontSize: 40 }} />,
-      gradient: 'linear-gradient(135deg, #667EEA 0%, #764BA2 100%)',
+      gradient: 'linear-gradient(195deg, #49a3f1 0%, #1A73E8 100%)',
       path: '/product-entry',
     },
     {
       title: 'Manage Products',
       description: 'View and edit existing products',
       icon: <InventoryIcon sx={{ fontSize: 40 }} />,
-      gradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+      gradient: 'linear-gradient(195deg, #66BB6A 0%, #43A047 100%)',
       path: '/product-management',
     },
     {
       title: 'Create Recipe',
       description: 'Create a new recipe and calculate costs',
       icon: <RestaurantIcon sx={{ fontSize: 40 }} />,
-      gradient: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+      gradient: 'linear-gradient(195deg, #FFA726 0%, #FB8C00 100%)',
       path: '/recipe-creation',
     },
     {
       title: 'Manage Recipes',
       description: 'View and edit your recipes',
       icon: <MenuBookIcon sx={{ fontSize: 40 }} />,
-      gradient: 'linear-gradient(135deg, #EC4899 0%, #DB2777 100%)',
+      gradient: 'linear-gradient(195deg, #EF5350 0%, #E53935 100%)',
       path: '/recipe-management',
     },
   ];
@@ -113,8 +113,8 @@ export default function Dashboard() {
       title: 'Total Products',
       value: stats.totalProducts,
       icon: <InventoryIcon sx={{ fontSize: 48 }} />,
-      gradient: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-      color: '#6366F1',
+      gradient: 'linear-gradient(195deg, #49a3f1 0%, #1A73E8 100%)',
+      color: '#2196F3',
       change: '+12%',
       changeType: 'positive',
     },
@@ -122,8 +122,8 @@ export default function Dashboard() {
       title: 'Total Recipes',
       value: stats.totalRecipes,
       icon: <RestaurantIcon sx={{ fontSize: 48 }} />,
-      gradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-      color: '#10B981',
+      gradient: 'linear-gradient(195deg, #66BB6A 0%, #43A047 100%)',
+      color: '#4CAF50',
       change: '+8%',
       changeType: 'positive',
     },
@@ -131,8 +131,8 @@ export default function Dashboard() {
       title: 'Active Vendors',
       value: stats.totalVendors,
       icon: <StorefrontIcon sx={{ fontSize: 48 }} />,
-      gradient: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-      color: '#F59E0B',
+      gradient: 'linear-gradient(195deg, #FFA726 0%, #FB8C00 100%)',
+      color: '#FB8C00',
       change: '+3',
       changeType: 'positive',
     },
@@ -151,12 +151,9 @@ export default function Dashboard() {
         <Typography
           variant="h3"
           sx={{
-            fontWeight: 800,
+            fontWeight: 700,
             mb: 1,
-            background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: 'text.primary',
           }}
         >
           Welcome to Recipe Costing
@@ -174,26 +171,16 @@ export default function Dashboard() {
               elevation={0}
               sx={{
                 height: '100%',
-                borderRadius: 4,
-                border: '1px solid',
-                borderColor: 'divider',
-                background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
-                overflow: 'hidden',
+                borderRadius: '1rem',
+                border: 'none',
+                background: '#FFFFFF',
+                overflow: 'visible',
                 position: 'relative',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
                 '&:hover': {
-                  transform: 'translateY(-8px)',
-                  boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
-                  borderColor: stat.color,
-                },
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '4px',
-                  background: stat.gradient,
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                 },
               }}
             >
@@ -230,13 +217,13 @@ export default function Dashboard() {
                     sx={{
                       width: 64,
                       height: 64,
-                      borderRadius: 3,
+                      borderRadius: '0.75rem',
                       background: stat.gradient,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: 'white',
-                      boxShadow: `0 8px 24px ${alpha(stat.color, 0.3)}`,
+                      boxShadow: `0 4px 6px -1px ${alpha(stat.color, 0.4)}, 0 2px 4px -1px ${alpha(stat.color, 0.3)}`,
                     }}
                   >
                     {stat.icon}
@@ -271,15 +258,16 @@ export default function Dashboard() {
               elevation={0}
               sx={{
                 height: '100%',
-                borderRadius: 4,
-                border: '1px solid',
-                borderColor: 'divider',
-                overflow: 'hidden',
+                borderRadius: '1rem',
+                border: 'none',
+                background: '#FFFFFF',
+                overflow: 'visible',
                 position: 'relative',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
                 '&:hover': {
-                  transform: 'translateY(-8px)',
-                  boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                   '& .action-arrow': {
                     transform: 'translateX(4px)',
                   },
@@ -302,14 +290,14 @@ export default function Dashboard() {
                     sx={{
                       width: 56,
                       height: 56,
-                      borderRadius: 3,
+                      borderRadius: '0.75rem',
                       background: action.gradient,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: 'white',
                       mb: 2,
-                      boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                     }}
                   >
                     {action.icon}
@@ -336,7 +324,7 @@ export default function Dashboard() {
                     sx={{
                       fontSize: 18,
                       color: 'primary.main',
-                      transition: 'transform 0.2s ease-in-out',
+                      transition: 'transform 250ms cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                   />
                 </Box>
