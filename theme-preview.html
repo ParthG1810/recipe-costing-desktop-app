@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Options - Recipe Costing App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2rem;
+            margin-bottom: 50px;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .theme-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+        }
+
+        .theme-header {
+            padding: 30px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-10%, -10%); }
+        }
+
+        .theme-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 12px;
+            text-align: center;
+            line-height: 40px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .theme-name {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .theme-description {
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+
+        .theme-body {
+            padding: 30px;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .color-swatch {
+            flex: 1;
+            height: 80px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .color-label {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .features li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .features li:last-child {
+            border-bottom: none;
+        }
+
+        .icon {
+            font-size: 1.2rem;
+        }
+
+        .recommended-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .select-button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .select-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Theme-specific styles */
+        .ocean-blue .theme-header { background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%); }
+        .ocean-blue .select-button { background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%); }
+
+        .royal-purple .theme-header { background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%); }
+        .royal-purple .select-button { background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%); }
+
+        .forest-green .theme-header { background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%); }
+        .forest-green .select-button { background: linear-gradient(135deg, #10B981 0%, #14B8A6 100%); }
+
+        .sunset-orange .theme-header { background: linear-gradient(135deg, #F97316 0%, #EC4899 100%); }
+        .sunset-orange .select-button { background: linear-gradient(135deg, #F97316 0%, #EC4899 100%); }
+
+        .midnight-dark .theme-header { background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); }
+        .midnight-dark .select-button { background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%); }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Choose Your Theme</h1>
+        <p class="subtitle">Click on any theme card to see the full preview</p>
+
+        <div class="themes-grid">
+            <!-- Ocean Blue -->
+            <div class="theme-card ocean-blue">
+                <div class="theme-header">
+                    <span class="theme-number">1</span>
+                    <h2 class="theme-name">🌊 Ocean Blue</h2>
+                    <p class="theme-description">Fresh & Professional</p>
+                </div>
+                <div class="theme-body">
+                    <div class="color-palette">
+                        <div class="color-swatch" style="background: #0EA5E9;">
+                            <div class="color-label">Primary</div>
+                        </div>
+                        <div class="color-swatch" style="background: #06B6D4;">
+                            <div class="color-label">Secondary</div>
+                        </div>
+                        <div class="color-swatch" style="background: #F0F9FF;">
+                            <div class="color-label" style="color: #0EA5E9; background: rgba(255,255,255,0.9);">Background</div>
+                        </div>
+                    </div>
+                    <ul class="features">
+                        <li><span class="icon">💼</span> Clean and business-friendly</li>
+                        <li><span class="icon">👁️</span> Easy on the eyes</li>
+                        <li><span class="icon">⚡</span> Modern and professional</li>
+                    </ul>
+                    <button class="select-button" onclick="alert('Tell Claude: I choose Option 1 - Ocean Blue')">Select Ocean Blue</button>
+                </div>
+            </div>
+
+            <!-- Royal Purple -->
+            <div class="theme-card royal-purple">
+                <div class="theme-header">
+                    <span class="theme-number">2</span>
+                    <h2 class="theme-name">👑 Royal Purple</h2>
+                    <p class="theme-description">Creative & Luxurious</p>
+                </div>
+                <div class="theme-body">
+                    <div class="color-palette">
+                        <div class="color-swatch" style="background: #8B5CF6;">
+                            <div class="color-label">Primary</div>
+                        </div>
+                        <div class="color-swatch" style="background: #EC4899;">
+                            <div class="color-label">Secondary</div>
+                        </div>
+                        <div class="color-swatch" style="background: #FAF5FF;">
+                            <div class="color-label" style="color: #8B5CF6; background: rgba(255,255,255,0.9);">Background</div>
+                        </div>
+                    </div>
+                    <ul class="features">
+                        <li><span class="icon">🎨</span> Bold and creative</li>
+                        <li><span class="icon">✨</span> Premium and elegant</li>
+                        <li><span class="icon">🚀</span> Stands out from the crowd</li>
+                    </ul>
+                    <button class="select-button" onclick="alert('Tell Claude: I choose Option 2 - Royal Purple')">Select Royal Purple</button>
+                </div>
+            </div>
+
+            <!-- Forest Green -->
+            <div class="theme-card forest-green">
+                <div class="theme-header">
+                    <span class="theme-number">3</span>
+                    <h2 class="theme-name">🌲 Forest Green</h2>
+                    <p class="theme-description">Natural & Calming</p>
+                </div>
+                <div class="theme-body">
+                    <div class="color-palette">
+                        <div class="color-swatch" style="background: #10B981;">
+                            <div class="color-label">Primary</div>
+                        </div>
+                        <div class="color-swatch" style="background: #14B8A6;">
+                            <div class="color-label">Secondary</div>
+                        </div>
+                        <div class="color-swatch" style="background: #F0FDF4;">
+                            <div class="color-label" style="color: #10B981; background: rgba(255,255,255,0.9);">Background</div>
+                        </div>
+                    </div>
+                    <ul class="features">
+                        <li><span class="icon">🌿</span> Natural and organic feel</li>
+                        <li><span class="icon">😌</span> Calm and refreshing</li>
+                        <li><span class="icon">🌍</span> Eco-friendly vibe</li>
+                    </ul>
+                    <button class="select-button" onclick="alert('Tell Claude: I choose Option 3 - Forest Green')">Select Forest Green</button>
+                </div>
+            </div>
+
+            <!-- Sunset Orange -->
+            <div class="theme-card sunset-orange">
+                <div class="theme-header">
+                    <span class="theme-number">4</span>
+                    <h2 class="theme-name">🌅 Sunset Orange</h2>
+                    <p class="theme-description">Warm & Energetic</p>
+                    <span class="recommended-badge">⭐ Recommended for Food Apps</span>
+                </div>
+                <div class="theme-body">
+                    <div class="color-palette">
+                        <div class="color-swatch" style="background: #F97316;">
+                            <div class="color-label">Primary</div>
+                        </div>
+                        <div class="color-swatch" style="background: #EC4899;">
+                            <div class="color-label">Secondary</div>
+                        </div>
+                        <div class="color-swatch" style="background: #FFF7ED;">
+                            <div class="color-label" style="color: #F97316; background: rgba(255,255,255,0.9);">Background</div>
+                        </div>
+                    </div>
+                    <ul class="features">
+                        <li><span class="icon">🍊</span> Appetizing and inviting</li>
+                        <li><span class="icon">🔥</span> Energetic and warm</li>
+                        <li><span class="icon">🍽️</span> Perfect for food industry</li>
+                    </ul>
+                    <button class="select-button" onclick="alert('Tell Claude: I choose Option 4 - Sunset Orange')">Select Sunset Orange</button>
+                </div>
+            </div>
+
+            <!-- Midnight Dark -->
+            <div class="theme-card midnight-dark">
+                <div class="theme-header">
+                    <span class="theme-number">5</span>
+                    <h2 class="theme-name">🌙 Midnight Dark</h2>
+                    <p class="theme-description">Elegant Dark Mode</p>
+                </div>
+                <div class="theme-body">
+                    <div class="color-palette">
+                        <div class="color-swatch" style="background: #60A5FA;">
+                            <div class="color-label">Primary</div>
+                        </div>
+                        <div class="color-swatch" style="background: #FBBF24;">
+                            <div class="color-label" style="color: #000;">Secondary</div>
+                        </div>
+                        <div class="color-swatch" style="background: #0F172A;">
+                            <div class="color-label">Background</div>
+                        </div>
+                    </div>
+                    <ul class="features">
+                        <li><span class="icon">🌃</span> Easy on the eyes at night</li>
+                        <li><span class="icon">💎</span> Sophisticated and modern</li>
+                        <li><span class="icon">⚫</span> Full dark mode support</li>
+                    </ul>
+                    <button class="select-button" onclick="alert('Tell Claude: I choose Option 5 - Midnight Dark')">Select Midnight Dark</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>How to choose:</strong> Just tell me the number (1-5) or name of your preferred theme!</p>
+            <p style="margin-top: 10px; opacity: 0.8;">My recommendation: <strong>Sunset Orange (#4)</strong> for a recipe app 🍊</p>
+        </div>
+    </div>
+</body>
+</html>
