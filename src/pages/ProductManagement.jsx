@@ -51,9 +51,12 @@ export default function ProductManagement() {
       setLoading(true);
       setError(null);
       const data = await api.get('/api/products');
-      setProducts(data || []);
+      // Ensure data is an array
+      const productsArray = Array.isArray(data) ? data : [];
+      setProducts(productsArray);
     } catch (err) {
       setError(err);
+      setProducts([]);
       enqueueSnackbar(err.message || 'Failed to load products', { variant: 'error' });
     } finally {
       setLoading(false);
@@ -61,12 +64,18 @@ export default function ProductManagement() {
   };
 
   const filterProducts = () => {
+    // Ensure products is an array
+    if (!Array.isArray(products)) {
+      setFilteredProducts([]);
+      return;
+    }
+
     let filtered = products;
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = products.filter(product =>
-        product.name.toLowerCase().includes(query) ||
+        product.name?.toLowerCase().includes(query) ||
         product.description?.toLowerCase().includes(query)
       );
     }
