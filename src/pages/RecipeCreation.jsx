@@ -14,25 +14,19 @@ import {
   IconButton,
   Paper,
   Divider,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
+  Container,
+  CircularProgress,
+  alpha,
 } from '@mui/material';
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-} from '@mui/icons-material';
-import { recipesAPI, productsAPI } from '../services/api';
+import { useSnackbar } from 'notistack';
+import Iconify from '../components/iconify/Iconify';
+import api from '../services/api';
 import { config } from '../config';
 import { formatPrice, calculateIngredientCost, getDefaultVendor } from '../utils/helpers';
-import Loading from '../components/Common/Loading';
-import SuccessMessage from '../components/Common/SuccessMessage';
-import ErrorMessage from '../components/Common/ErrorMessage';
 
 export default function RecipeCreation() {
+  const { enqueueSnackbar } = useSnackbar();
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -41,8 +35,6 @@ export default function RecipeCreation() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [productsLoading, setProductsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     loadProducts();
@@ -50,10 +42,10 @@ export default function RecipeCreation() {
 
   const loadProducts = async () => {
     try {
-      const response = await productsAPI.getAll();
+      const response = await api.get('/api/products');
       setProducts(response.data || []);
     } catch (err) {
-      setError(err);
+      enqueueSnackbar(err.message || 'Failed to load products', { variant: 'error' });
     } finally {
       setProductsLoading(false);
     }
@@ -100,23 +92,22 @@ export default function RecipeCreation() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim()) {
-      setError('Recipe name is required');
+      enqueueSnackbar('Recipe name is required', { variant: 'error' });
       return;
     }
 
     if (formData.ingredients.length === 0 || !formData.ingredients[0].product_id) {
-      setError('At least one ingredient is required');
+      enqueueSnackbar('At least one ingredient is required', { variant: 'error' });
       return;
     }
 
     try {
       setLoading(true);
-      setError(null);
-      await recipesAPI.create(formData);
-      setSuccess(true);
-      
+      await api.post('/api/recipes', formData);
+      enqueueSnackbar('Recipe created successfully!', { variant: 'success' });
+
       // Reset form
       setFormData({
         name: '',
@@ -124,49 +115,82 @@ export default function RecipeCreation() {
         ingredients: [{ product_id: '', quantity: '', unit: 'g' }],
       });
     } catch (err) {
-      setError(err);
+      enqueueSnackbar(err.message || 'Failed to create recipe', { variant: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
   if (productsLoading) {
-    return <Loading message="Loading products..." />;
+    return (
+      <Container maxWidth="xl">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
   }
 
   const totalCost = calculateTotalCost();
 
   return (
-    <Box>
-      {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
-
+    <Container maxWidth="xl">
       {/* Page Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+      <Box sx={{ mb: 5 }}>
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 700,
+            mb: 1,
+            color: 'text.primary',
+          }}
+        >
           Create New Recipe
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
           Build your recipe with ingredients and calculate the total cost
         </Typography>
       </Box>
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <Card elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+          <Card
+            elevation={0}
+            sx={{
+              borderRadius: '1rem',
+              border: 'none',
+              background: '#FFFFFF',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+            }}
+          >
             {/* Card Header */}
             <Box
               sx={{
-                background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                background: 'linear-gradient(195deg, #F59E0B 0%, #F97316 100%)',
                 p: 3,
                 color: 'white',
+                position: 'relative',
+                overflow: 'hidden',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'radial-gradient(circle at top right, rgba(255,255,255,0.15) 0%, transparent 60%)',
+                },
               }}
             >
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Recipe Details
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
-                Enter the name and ingredients for your recipe
-              </Typography>
+              <Box sx={{ position: 'relative', zIndex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Recipe Details
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
+                  Enter the name and ingredients for your recipe
+                </Typography>
+              </Box>
             </Box>
 
             <CardContent sx={{ p: 4 }}>
@@ -204,7 +228,16 @@ export default function RecipeCreation() {
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                     Ingredients
                   </Typography>
-                  <Button startIcon={<AddIcon />} onClick={addIngredient} variant="outlined">
+                  <Button
+                    startIcon={<Iconify icon="eva:plus-circle-fill" />}
+                    onClick={addIngredient}
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      fontWeight: 600,
+                    }}
+                  >
                     Add Ingredient
                   </Button>
                 </Box>
@@ -214,12 +247,19 @@ export default function RecipeCreation() {
                     key={index}
                     elevation={0}
                     sx={{
-                      p: 2,
-                      mb: 2,
-                      backgroundColor: 'background.default',
-                      border: '1px solid',
+                      p: 3,
+                      mb: 3,
+                      background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
+                      border: '2px solid',
                       borderColor: 'divider',
-                      borderRadius: 2,
+                      borderRadius: '0.75rem',
+                      transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+                      '&:hover': {
+                        borderColor: 'primary.light',
+                        boxShadow: '0 8px 16px rgba(99, 102, 241, 0.15)',
+                        transform: 'translateY(-2px)',
+                      },
                     }}
                   >
                     <Grid container spacing={2} alignItems="center">
@@ -266,8 +306,18 @@ export default function RecipeCreation() {
                       </Grid>
                       <Grid item xs={12} md={1}>
                         {formData.ingredients.length > 1 && (
-                          <IconButton onClick={() => removeIngredient(index)} color="error" size="small">
-                            <DeleteIcon />
+                          <IconButton
+                            onClick={() => removeIngredient(index)}
+                            sx={{
+                              color: 'error.main',
+                              transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+                              '&:hover': {
+                                backgroundColor: alpha('#EF4444', 0.08),
+                                transform: 'scale(1.1)',
+                              },
+                            }}
+                          >
+                            <Iconify icon="eva:trash-2-outline" width={24} />
                           </IconButton>
                         )}
                       </Grid>
@@ -280,8 +330,23 @@ export default function RecipeCreation() {
                     type="submit"
                     variant="contained"
                     size="large"
-                    startIcon={<SaveIcon />}
+                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Iconify icon="eva:save-fill" />}
                     disabled={loading}
+                    sx={{
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      px: 4,
+                      background: 'linear-gradient(195deg, #F59E0B 0%, #F97316 100%)',
+                      boxShadow: '0 4px 6px -1px rgba(245, 158, 11, 0.4)',
+                      '&:hover': {
+                        background: 'linear-gradient(195deg, #D97706 0%, #EA580C 100%)',
+                        boxShadow: '0 6px 8px -1px rgba(245, 158, 11, 0.5)',
+                      },
+                      '&:disabled': {
+                        background: 'rgba(245, 158, 11, 0.3)',
+                      },
+                    }}
                   >
                     {loading ? 'Creating...' : 'Create Recipe'}
                   </Button>
@@ -295,37 +360,51 @@ export default function RecipeCreation() {
           <Card
             elevation={0}
             sx={{
-              borderRadius: 4,
-              border: '1px solid',
-              borderColor: 'divider',
+              borderRadius: '1rem',
+              border: 'none',
               position: 'sticky',
               top: 24,
               overflow: 'hidden',
-              background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
+              background: '#FFFFFF',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
             }}
           >
             <Box
               sx={{
-                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                background: 'linear-gradient(195deg, #10B981 0%, #059669 100%)',
                 p: 3,
                 color: 'white',
+                position: 'relative',
+                overflow: 'hidden',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'radial-gradient(circle at top right, rgba(255,255,255,0.15) 0%, transparent 60%)',
+                },
               }}
             >
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Cost Summary
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
-                Real-time cost calculation
-              </Typography>
+              <Box sx={{ position: 'relative', zIndex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Cost Summary
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
+                  Real-time cost calculation
+                </Typography>
+              </Box>
             </Box>
             <CardContent sx={{ p: 4 }}>
               <Box
                 sx={{
-                  p: 3,
-                  borderRadius: 3,
-                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                  p: 4,
+                  borderRadius: '0.75rem',
+                  background: 'linear-gradient(195deg, #10B981 0%, #059669 100%)',
                   mb: 3,
                   textAlign: 'center',
+                  boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.4)',
                 }}
               >
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', mb: 1, fontWeight: 600 }}>
@@ -338,7 +417,7 @@ export default function RecipeCreation() {
               <Box
                 sx={{
                   p: 2,
-                  borderRadius: 2,
+                  borderRadius: '0.5rem',
                   backgroundColor: 'rgba(16, 185, 129, 0.08)',
                   border: '1px solid',
                   borderColor: 'rgba(16, 185, 129, 0.2)',
@@ -352,12 +431,6 @@ export default function RecipeCreation() {
           </Card>
         </Grid>
       </Grid>
-
-      <SuccessMessage
-        open={success}
-        message="Recipe created successfully!"
-        onClose={() => setSuccess(false)}
-      />
-    </Box>
+    </Container>
   );
 }

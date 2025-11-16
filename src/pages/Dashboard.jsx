@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -7,23 +7,12 @@ import {
   CardContent,
   CardActionArea,
   Typography,
-  Paper,
-  Divider,
+  Container,
   alpha,
-  useTheme,
 } from '@mui/material';
-import {
-  AddCircle as AddCircleIcon,
-  Inventory as InventoryIcon,
-  Restaurant as RestaurantIcon,
-  MenuBook as MenuBookIcon,
-  TrendingUp as TrendingUpIcon,
-  Storefront as StorefrontIcon,
-  ArrowForward as ArrowForwardIcon,
-} from '@mui/icons-material';
-import { productsAPI, recipesAPI } from '../services/api';
-import Loading from '../components/Common/Loading';
-import ErrorMessage from '../components/Common/ErrorMessage';
+import { useTheme } from '@mui/material/styles';
+import Iconify from '../components/iconify/Iconify';
+import api from '../services/api';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -48,8 +37,8 @@ export default function Dashboard() {
       setError(null);
 
       const [productsResponse, recipesResponse] = await Promise.all([
-        productsAPI.getAll(),
-        recipesAPI.getAll(),
+        api.get('/api/products'),
+        api.get('/api/recipes'),
       ]);
 
       const products = productsResponse.data || [];
@@ -72,6 +61,7 @@ export default function Dashboard() {
       });
     } catch (err) {
       setError(err);
+      console.error('Error loading dashboard:', err);
     } finally {
       setLoading(false);
     }
@@ -81,30 +71,30 @@ export default function Dashboard() {
     {
       title: 'Add Product',
       description: 'Add a new product with vendor pricing',
-      icon: <AddCircleIcon sx={{ fontSize: 40 }} />,
+      icon: 'eva:plus-circle-fill',
       gradient: 'linear-gradient(195deg, #49a3f1 0%, #1A73E8 100%)',
-      path: '/product-entry',
+      path: '/products/add',
     },
     {
       title: 'Manage Products',
       description: 'View and edit existing products',
-      icon: <InventoryIcon sx={{ fontSize: 40 }} />,
+      icon: 'eva:cube-fill',
       gradient: 'linear-gradient(195deg, #66BB6A 0%, #43A047 100%)',
-      path: '/product-management',
+      path: '/products/manage',
     },
     {
       title: 'Create Recipe',
       description: 'Create a new recipe and calculate costs',
-      icon: <RestaurantIcon sx={{ fontSize: 40 }} />,
+      icon: 'eva:file-add-fill',
       gradient: 'linear-gradient(195deg, #FFA726 0%, #FB8C00 100%)',
-      path: '/recipe-creation',
+      path: '/recipes/create',
     },
     {
       title: 'Manage Recipes',
       description: 'View and edit your recipes',
-      icon: <MenuBookIcon sx={{ fontSize: 40 }} />,
+      icon: 'eva:list-fill',
       gradient: 'linear-gradient(195deg, #EF5350 0%, #E53935 100%)',
-      path: '/recipe-management',
+      path: '/recipes/manage',
     },
   ];
 
@@ -112,7 +102,7 @@ export default function Dashboard() {
     {
       title: 'Total Products',
       value: stats.totalProducts,
-      icon: <InventoryIcon sx={{ fontSize: 48 }} />,
+      icon: 'eva:cube-fill',
       gradient: 'linear-gradient(195deg, #49a3f1 0%, #1A73E8 100%)',
       color: '#2196F3',
       change: '+12%',
@@ -121,7 +111,7 @@ export default function Dashboard() {
     {
       title: 'Total Recipes',
       value: stats.totalRecipes,
-      icon: <RestaurantIcon sx={{ fontSize: 48 }} />,
+      icon: 'eva:file-text-fill',
       gradient: 'linear-gradient(195deg, #66BB6A 0%, #43A047 100%)',
       color: '#4CAF50',
       change: '+8%',
@@ -130,7 +120,7 @@ export default function Dashboard() {
     {
       title: 'Active Vendors',
       value: stats.totalVendors,
-      icon: <StorefrontIcon sx={{ fontSize: 48 }} />,
+      icon: 'eva:people-fill',
       gradient: 'linear-gradient(195deg, #FFA726 0%, #FB8C00 100%)',
       color: '#FB8C00',
       change: '+3',
@@ -139,13 +129,17 @@ export default function Dashboard() {
   ];
 
   if (loading) {
-    return <Loading message="Loading dashboard..." />;
+    return (
+      <Container maxWidth="xl">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <Typography>Loading dashboard...</Typography>
+        </Box>
+      </Container>
+    );
   }
 
   return (
-    <Box>
-      {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
-
+    <Container maxWidth="xl">
       {/* Welcome Section */}
       <Box sx={{ mb: 5 }}>
         <Typography
@@ -226,11 +220,11 @@ export default function Dashboard() {
                       boxShadow: `0 4px 6px -1px ${alpha(stat.color, 0.4)}, 0 2px 4px -1px ${alpha(stat.color, 0.3)}`,
                     }}
                   >
-                    {stat.icon}
+                    <Iconify icon={stat.icon} width={48} />
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <TrendingUpIcon sx={{ fontSize: 18, color: 'success.main' }} />
+                  <Iconify icon="eva:trending-up-fill" width={18} sx={{ color: 'success.main' }} />
                   <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 600 }}>
                     {stat.change}
                   </Typography>
@@ -300,7 +294,7 @@ export default function Dashboard() {
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                     }}
                   >
-                    {action.icon}
+                    <Iconify icon={action.icon} width={40} />
                   </Box>
                   <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 1 }}>
                     {action.title}
@@ -319,10 +313,11 @@ export default function Dashboard() {
                   >
                     Get Started
                   </Typography>
-                  <ArrowForwardIcon
+                  <Iconify
+                    icon="eva:arrow-forward-fill"
                     className="action-arrow"
+                    width={18}
                     sx={{
-                      fontSize: 18,
                       color: 'primary.main',
                       transition: 'transform 250ms cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
@@ -333,6 +328,6 @@ export default function Dashboard() {
           </Grid>
         ))}
       </Grid>
-    </Box>
+    </Container>
   );
 }

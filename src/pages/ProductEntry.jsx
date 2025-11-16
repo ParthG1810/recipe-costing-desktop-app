@@ -18,22 +18,20 @@ import {
   FormControlLabel,
   Divider,
   Paper,
+  Container,
+  CircularProgress,
+  alpha,
 } from '@mui/material';
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-} from '@mui/icons-material';
-import { productsAPI } from '../services/api';
+import { useSnackbar } from 'notistack';
+import Iconify from '../components/iconify/Iconify';
+import api from '../services/api';
 import { config } from '../config';
 import { validateProductData } from '../utils/helpers';
-import SuccessMessage from '../components/Common/SuccessMessage';
-import ErrorMessage from '../components/Common/ErrorMessage';
-import Loading from '../components/Common/Loading';
 
 export default function ProductEntry() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const isEditMode = Boolean(id);
 
   const [formData, setFormData] = useState({
@@ -43,8 +41,6 @@ export default function ProductEntry() {
   });
   const [loading, setLoading] = useState(false);
   const [loadingProduct, setLoadingProduct] = useState(isEditMode);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     if (isEditMode) {
@@ -55,7 +51,7 @@ export default function ProductEntry() {
   const loadProduct = async () => {
     try {
       setLoadingProduct(true);
-      const response = await productsAPI.getById(id);
+      const response = await api.get(`/api/products/${id}`);
       const productData = response.data;
 
       setFormData({
@@ -66,7 +62,8 @@ export default function ProductEntry() {
           : [{ vendor_name: '', price: '', weight: '', package_size: 'g', is_default: true }],
       });
     } catch (err) {
-      setError(err);
+      enqueueSnackbar(err.message || 'Failed to load product', { variant: 'error' });
+      navigate('/product-management');
     } finally {
       setLoadingProduct(false);
     }
@@ -93,7 +90,7 @@ export default function ProductEntry() {
 
   const addVendor = () => {
     if (formData.vendors.length >= config.features.maxVendorsPerProduct) {
-      setError(`Maximum ${config.features.maxVendorsPerProduct} vendors allowed`);
+      enqueueSnackbar(`Maximum ${config.features.maxVendorsPerProduct} vendors allowed`, { variant: 'warning' });
       return;
     }
     setFormData(prev => ({
@@ -104,7 +101,7 @@ export default function ProductEntry() {
 
   const removeVendor = (index) => {
     if (formData.vendors.length === 1) {
-      setError('At least one vendor is required');
+      enqueueSnackbar('At least one vendor is required', { variant: 'warning' });
       return;
     }
     const newVendors = formData.vendors.filter((_, i) => i !== index);
@@ -117,24 +114,23 @@ export default function ProductEntry() {
     // Validation
     const errors = validateProductData(formData);
     if (Object.keys(errors).length > 0) {
-      setError(Object.values(errors)[0]);
+      enqueueSnackbar(Object.values(errors)[0], { variant: 'error' });
       return;
     }
 
     try {
       setLoading(true);
-      setError(null);
 
       if (isEditMode) {
-        await productsAPI.update(id, formData);
-        setSuccess(true);
+        await api.put(`/api/products/${id}`, formData);
+        enqueueSnackbar('Product updated successfully!', { variant: 'success' });
         // Navigate back to product management after a short delay
         setTimeout(() => {
           navigate('/product-management');
         }, 1500);
       } else {
-        await productsAPI.create(formData);
-        setSuccess(true);
+        await api.post('/api/products', formData);
+        enqueueSnackbar('Product added successfully!', { variant: 'success' });
 
         // Reset form
         setFormData({
@@ -144,45 +140,78 @@ export default function ProductEntry() {
         });
       }
     } catch (err) {
-      setError(err);
+      enqueueSnackbar(err.message || 'Failed to save product', { variant: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
   if (loadingProduct) {
-    return <Loading message="Loading product..." />;
+    return (
+      <Container maxWidth="xl">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
   }
 
   return (
-    <Box>
-      {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
-
+    <Container maxWidth="xl">
       {/* Page Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+      <Box sx={{ mb: 5 }}>
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 700,
+            mb: 1,
+            color: 'text.primary',
+          }}
+        >
           {isEditMode ? 'Edit Product' : 'Add New Product'}
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
           {isEditMode ? 'Update product details and vendor pricing' : 'Create a new product with vendor pricing information'}
         </Typography>
       </Box>
 
-      <Card elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+      <Card
+        elevation={0}
+        sx={{
+          borderRadius: '1rem',
+          border: 'none',
+          background: '#FFFFFF',
+          overflow: 'hidden',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+        }}
+      >
         {/* Card Header */}
         <Box
           sx={{
-            background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+            background: 'linear-gradient(195deg, #6366F1 0%, #8B5CF6 100%)',
             p: 3,
             color: 'white',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'radial-gradient(circle at top right, rgba(255,255,255,0.15) 0%, transparent 60%)',
+            },
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Product Details
-          </Typography>
-          <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
-            Enter the basic information about your product
-          </Typography>
+          <Box sx={{ position: 'relative', zIndex: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              Product Details
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
+              Enter the basic information about your product
+            </Typography>
+          </Box>
         </Box>
 
         <CardContent sx={{ p: 4 }}>
@@ -220,10 +249,15 @@ export default function ProductEntry() {
                 Vendor Pricing
               </Typography>
               <Button
-                startIcon={<AddIcon />}
+                startIcon={<Iconify icon="eva:plus-circle-fill" />}
                 onClick={addVendor}
                 variant="outlined"
                 disabled={formData.vendors.length >= config.features.maxVendorsPerProduct}
+                sx={{
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                }}
               >
                 Add Vendor
               </Button>
@@ -239,11 +273,15 @@ export default function ProductEntry() {
                   background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
                   border: '2px solid',
                   borderColor: vendor.is_default ? 'primary.main' : 'divider',
-                  borderRadius: 3,
-                  transition: 'all 0.3s ease-in-out',
+                  borderRadius: '0.75rem',
+                  transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: vendor.is_default
+                    ? '0 4px 12px rgba(99, 102, 241, 0.15)'
+                    : '0 1px 3px rgba(0, 0, 0, 0.05)',
                   '&:hover': {
-                    borderColor: 'primary.light',
-                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.1)',
+                    borderColor: vendor.is_default ? 'primary.dark' : 'primary.light',
+                    boxShadow: '0 8px 16px rgba(99, 102, 241, 0.15)',
+                    transform: 'translateY(-2px)',
                   },
                 }}
               >
@@ -251,55 +289,62 @@ export default function ProductEntry() {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Box
                       sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 2,
+                        width: 48,
+                        height: 48,
+                        borderRadius: '0.75rem',
                         background: vendor.is_default
-                          ? 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)'
-                          : 'linear-gradient(135deg, #E2E8F0 0%, #CBD5E1 100%)',
+                          ? 'linear-gradient(195deg, #6366F1 0%, #8B5CF6 100%)'
+                          : 'linear-gradient(195deg, #E2E8F0 0%, #CBD5E1 100%)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: vendor.is_default ? 'white' : 'text.secondary',
                         fontWeight: 700,
                         fontSize: '1.1rem',
+                        boxShadow: vendor.is_default
+                          ? `0 4px 6px -1px ${alpha('#6366F1', 0.4)}`
+                          : 'none',
                       }}
                     >
                       {index + 1}
                     </Box>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                      Vendor {index + 1}
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                        Vendor {index + 1}
+                      </Typography>
                       {vendor.is_default && (
-                        <Typography
+                        <Box
                           component="span"
                           sx={{
-                            ml: 1,
+                            display: 'inline-block',
+                            mt: 0.5,
                             px: 1.5,
-                            py: 0.5,
-                            borderRadius: 1,
-                            background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                            py: 0.25,
+                            borderRadius: '0.5rem',
+                            background: 'linear-gradient(195deg, #6366F1 0%, #8B5CF6 100%)',
                             color: 'white',
                             fontSize: '0.75rem',
                             fontWeight: 600,
                           }}
                         >
-                          Default
-                        </Typography>
+                          Default Vendor
+                        </Box>
                       )}
-                    </Typography>
+                    </Box>
                   </Box>
                   {formData.vendors.length > 1 && (
                     <IconButton
                       onClick={() => removeVendor(index)}
                       sx={{
                         color: 'error.main',
+                        transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
                         '&:hover': {
-                          backgroundColor: 'error.lighter',
+                          backgroundColor: alpha('#EF4444', 0.08),
                           transform: 'scale(1.1)',
                         },
                       }}
                     >
-                      <DeleteIcon />
+                      <Iconify icon="eva:trash-2-outline" width={24} />
                     </IconButton>
                   )}
                 </Box>
@@ -379,6 +424,12 @@ export default function ProductEntry() {
                   size="large"
                   onClick={() => navigate('/product-management')}
                   disabled={loading}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    px: 3,
+                  }}
                 >
                   Cancel
                 </Button>
@@ -387,8 +438,23 @@ export default function ProductEntry() {
                 type="submit"
                 variant="contained"
                 size="large"
-                startIcon={<SaveIcon />}
+                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Iconify icon="eva:save-fill" />}
                 disabled={loading}
+                sx={{
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  px: 4,
+                  background: 'linear-gradient(195deg, #6366F1 0%, #8B5CF6 100%)',
+                  boxShadow: '0 4px 6px -1px rgba(99, 102, 241, 0.4)',
+                  '&:hover': {
+                    background: 'linear-gradient(195deg, #4F46E5 0%, #7C3AED 100%)',
+                    boxShadow: '0 6px 8px -1px rgba(99, 102, 241, 0.5)',
+                  },
+                  '&:disabled': {
+                    background: 'rgba(99, 102, 241, 0.3)',
+                  },
+                }}
               >
                 {loading ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Product' : 'Add Product')}
               </Button>
@@ -396,12 +462,6 @@ export default function ProductEntry() {
           </form>
         </CardContent>
       </Card>
-
-      <SuccessMessage
-        open={success}
-        message={isEditMode ? "Product updated successfully!" : "Product added successfully!"}
-        onClose={() => setSuccess(false)}
-      />
-    </Box>
+    </Container>
   );
 }
