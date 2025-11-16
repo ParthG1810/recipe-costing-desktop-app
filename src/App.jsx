@@ -23,6 +23,7 @@ function App() {
           <Route path="/" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="product-entry" element={<ProductEntry />} />
+            <Route path="product-entry/:id" element={<ProductEntry />} />
             <Route path="product-management" element={<ProductManagement />} />
             <Route path="recipe-creation" element={<RecipeCreation />} />
             <Route path="recipe-management" element={<RecipeManagement />} />
