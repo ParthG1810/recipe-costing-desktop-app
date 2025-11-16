@@ -146,10 +146,6 @@ export default function ProductManagement() {
 
   return (
     <Box className="fade-in">
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
-        Manage Products
-      </Typography>
-
       {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
 
       <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', p: 3 }}>

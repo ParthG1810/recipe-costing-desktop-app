@@ -156,10 +156,6 @@ export default function ProductEntry() {
 
   return (
     <Box className="fade-in">
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
-        {isEditMode ? 'Edit Product' : 'Add New Product'}
-      </Typography>
-
       {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
 
       <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>

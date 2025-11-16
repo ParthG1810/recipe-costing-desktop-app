@@ -138,10 +138,6 @@ export default function RecipeCreation() {
 
   return (
     <Box className="fade-in">
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
-        Create New Recipe
-      </Typography>
-
       {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
 
       <Grid container spacing={3}>
