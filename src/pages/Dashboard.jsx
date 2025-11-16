@@ -130,25 +130,6 @@ export default function Dashboard() {
 
   return (
     <Box className="fade-in">
-      {/* Welcome Section */}
-      <Paper
-        elevation={0}
-        sx={{
-          p: 4,
-          mb: 4,
-          background: 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)',
-          color: 'white',
-          borderRadius: 3,
-        }}
-      >
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 700 }}>
-          Welcome to Recipe Costing App
-        </Typography>
-        <Typography variant="body1" sx={{ opacity: 0.95 }}>
-          Manage your ingredients, track vendor pricing, and calculate recipe costs efficiently
-        </Typography>
-      </Paper>
-
       {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
 
       {/* Statistics Cards */}
