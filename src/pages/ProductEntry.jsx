@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -28,16 +29,48 @@ import { config } from '../config';
 import { validateProductData } from '../utils/helpers';
 import SuccessMessage from '../components/Common/SuccessMessage';
 import ErrorMessage from '../components/Common/ErrorMessage';
+import Loading from '../components/Common/Loading';
 
 export default function ProductEntry() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEditMode = Boolean(id);
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     vendors: [{ vendor_name: '', price: '', weight: '', package_size: 'g', is_default: true }],
   });
   const [loading, setLoading] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(isEditMode);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (isEditMode) {
+      loadProduct();
+    }
+  }, [id]);
+
+  const loadProduct = async () => {
+    try {
+      setLoadingProduct(true);
+      const response = await productsAPI.getById(id);
+      const productData = response.data;
+
+      setFormData({
+        name: productData.name || '',
+        description: productData.description || '',
+        vendors: productData.vendors && productData.vendors.length > 0
+          ? productData.vendors
+          : [{ vendor_name: '', price: '', weight: '', package_size: 'g', is_default: true }],
+      });
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoadingProduct(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -80,7 +113,7 @@ export default function ProductEntry() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     const errors = validateProductData(formData);
     if (Object.keys(errors).length > 0) {
@@ -91,15 +124,25 @@ export default function ProductEntry() {
     try {
       setLoading(true);
       setError(null);
-      await productsAPI.create(formData);
-      setSuccess(true);
-      
-      // Reset form
-      setFormData({
-        name: '',
-        description: '',
-        vendors: [{ vendor_name: '', price: '', weight: '', package_size: 'g', is_default: true }],
-      });
+
+      if (isEditMode) {
+        await productsAPI.update(id, formData);
+        setSuccess(true);
+        // Navigate back to product management after a short delay
+        setTimeout(() => {
+          navigate('/product-management');
+        }, 1500);
+      } else {
+        await productsAPI.create(formData);
+        setSuccess(true);
+
+        // Reset form
+        setFormData({
+          name: '',
+          description: '',
+          vendors: [{ vendor_name: '', price: '', weight: '', package_size: 'g', is_default: true }],
+        });
+      }
     } catch (err) {
       setError(err);
     } finally {
@@ -107,10 +150,14 @@ export default function ProductEntry() {
     }
   };
 
+  if (loadingProduct) {
+    return <Loading message="Loading product..." />;
+  }
+
   return (
     <Box className="fade-in">
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
-        Add New Product
+        {isEditMode ? 'Edit Product' : 'Add New Product'}
       </Typography>
 
       {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
@@ -257,6 +304,16 @@ export default function ProductEntry() {
 
             {/* Submit Button */}
             <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+              {isEditMode && (
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={() => navigate('/product-management')}
+                  disabled={loading}
+                >
+                  Cancel
+                </Button>
+              )}
               <Button
                 type="submit"
                 variant="contained"
@@ -264,7 +321,7 @@ export default function ProductEntry() {
                 startIcon={<SaveIcon />}
                 disabled={loading}
               >
-                {loading ? 'Adding...' : 'Add Product'}
+                {loading ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Product' : 'Add Product')}
               </Button>
             </Box>
           </form>
@@ -273,7 +330,7 @@ export default function ProductEntry() {
 
       <SuccessMessage
         open={success}
-        message="Product added successfully!"
+        message={isEditMode ? "Product updated successfully!" : "Product added successfully!"}
         onClose={() => setSuccess(false)}
       />
     </Box>
