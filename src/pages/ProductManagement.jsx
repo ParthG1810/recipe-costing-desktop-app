@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Card,
+  Container,
   Typography,
   TextField,
   Table,
@@ -16,21 +17,18 @@ import {
   InputAdornment,
   Collapse,
   TableSortLabel,
+  CircularProgress,
+  Alert,
+  AlertTitle,
 } from '@mui/material';
-import {
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Search as SearchIcon,
-  KeyboardArrowDown as KeyboardArrowDownIcon,
-  KeyboardArrowUp as KeyboardArrowUpIcon,
-} from '@mui/icons-material';
-import { productsAPI } from '../services/api';
+import { useSnackbar } from 'notistack';
+import Iconify from '../components/iconify/Iconify';
+import api from '../services/api';
 import { formatPrice, getDefaultVendor } from '../utils/helpers';
-import Loading from '../components/Common/Loading';
-import ErrorMessage from '../components/Common/ErrorMessage';
 
 export default function ProductManagement() {
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,10 +49,12 @@ export default function ProductManagement() {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const response = await productsAPI.getAll();
-      setProducts(response.data || []);
+      setError(null);
+      const data = await api.get('/api/products');
+      setProducts(data || []);
     } catch (err) {
       setError(err);
+      enqueueSnackbar(err.message || 'Failed to load products', { variant: 'error' });
     } finally {
       setLoading(false);
     }
@@ -116,10 +116,12 @@ export default function ProductManagement() {
     }
 
     try {
-      await productsAPI.delete(id);
+      await api.delete(`/api/products/${id}`);
+      enqueueSnackbar('Product deleted successfully', { variant: 'success' });
       loadProducts();
     } catch (err) {
       setError(err);
+      enqueueSnackbar(err.message || 'Failed to delete product', { variant: 'error' });
     }
   };
 
@@ -141,12 +143,27 @@ export default function ProductManagement() {
   };
 
   if (loading) {
-    return <Loading message="Loading products..." />;
+    return (
+      <Container maxWidth="xl">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
   }
 
   return (
-    <Box>
-      {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
+    <Container maxWidth="xl">
+      {error && (
+        <Alert
+          severity="error"
+          onClose={() => setError(null)}
+          sx={{ mb: 3, borderRadius: 2 }}
+        >
+          <AlertTitle>Error</AlertTitle>
+          {error.message || 'An error occurred'}
+        </Alert>
+      )}
 
       {/* Page Header */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -181,7 +198,7 @@ export default function ProductManagement() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ color: 'text.secondary' }} />
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.secondary' }} />
                 </InputAdornment>
               ),
             }}
@@ -246,7 +263,11 @@ export default function ProductManagement() {
                           onClick={() => toggleRow(product.id)}
                           disabled={!product.vendors || product.vendors.length === 0}
                         >
-                          {isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                          {isExpanded ? (
+                            <Iconify icon="eva:arrow-up-fill" width={20} />
+                          ) : (
+                            <Iconify icon="eva:arrow-down-fill" width={20} />
+                          )}
                         </IconButton>
                       </TableCell>
                       <TableCell>{product.name}</TableCell>
@@ -264,10 +285,10 @@ export default function ProductManagement() {
                       </TableCell>
                       <TableCell align="right">
                         <IconButton size="small" color="primary" onClick={() => handleEdit(product)}>
-                          <EditIcon />
+                          <Iconify icon="eva:edit-fill" width={20} />
                         </IconButton>
                         <IconButton size="small" color="error" onClick={() => handleDelete(product.id)}>
-                          <DeleteIcon />
+                          <Iconify icon="eva:trash-2-fill" width={20} />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -325,6 +346,6 @@ export default function ProductManagement() {
           </Box>
         )}
       </Card>
-    </Box>
+    </Container>
   );
 }

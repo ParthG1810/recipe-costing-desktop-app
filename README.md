@@ -1,6 +1,6 @@
 # Recipe Costing Desktop Application v2.0
 
-A professional desktop application for managing ingredient pricing from multiple vendors and calculating recipe costs automatically. Built with React, Electron, and MySQL.
+A professional desktop application for managing ingredient pricing from multiple vendors and calculating recipe costs automatically. Built with React, Electron, MySQL, and the **Minimal UI v4.1.0 Template**.
 
 ## ✨ Features
 
@@ -10,7 +10,7 @@ A professional desktop application for managing ingredient pricing from multiple
 - 🔄 **Unit Conversion** - Automatic conversion between different units
 - 💾 **Local MySQL Database** - Secure local data storage
 - 🖥️ **Desktop Application** - Native Windows/Mac/Linux application using Electron
-- 🎨 **Material-UI Design** - Modern, responsive interface
+- 🎨 **Minimal UI Design System** - Professional Material-UI template with clean, modern interface
 - ⚙️ **Environment Variables** - All configurations moved to .env file
 - 🔐 **Best Practices** - Following React and JavaScript industry standards
 
@@ -269,10 +269,15 @@ All configuration is done through environment variables in the `.env` file:
 
 **Frontend:**
 - React 18
-- Material-UI 5
+- **Minimal UI v4.1.0 Template** - Professional Material-UI dashboard template
+- Material-UI 5 (MUI)
 - React Router 6
 - Axios
 - Vite
+- Notistack (notifications)
+- Iconify React (icon library)
+- Framer Motion (animations)
+- SimpleBar React (custom scrollbars)
 
 **Backend:**
 - Node.js

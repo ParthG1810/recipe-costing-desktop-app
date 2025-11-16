@@ -7,8 +7,6 @@ import {
   StyledEngineProvider,
   ThemeProvider as MUIThemeProvider,
 } from '@mui/material/styles';
-// components
-import { useSettingsContext } from '../components/settings';
 //
 import palette from './palette';
 import typography from './typography';
@@ -24,7 +22,8 @@ ThemeProvider.propTypes = {
 };
 
 export default function ThemeProvider({ children }) {
-  const { themeMode, themeDirection } = useSettingsContext();
+  const themeMode = 'light'; // Can be 'light' or 'dark'
+  const themeDirection = 'ltr'; // Can be 'ltr' or 'rtl'
 
   const themeOptions = useMemo(
     () => ({

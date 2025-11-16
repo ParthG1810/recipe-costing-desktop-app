@@ -1,36 +1,39 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import minimalTheme from './themes/minimal';
-
-// Layout
-import DashboardLayout from './components/Layout/DashboardLayout';
-
-// Pages
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { SnackbarProvider } from 'notistack';
+// theme
+import ThemeProvider from './themes/ThemeProvider';
+// layouts
+import DashboardLayout from './layouts/dashboard';
+// pages
 import Dashboard from './pages/Dashboard';
 import ProductEntry from './pages/ProductEntry';
 import ProductManagement from './pages/ProductManagement';
 import RecipeCreation from './pages/RecipeCreation';
 import RecipeManagement from './pages/RecipeManagement';
 
+// ----------------------------------------------------------------------
+
 function App() {
   return (
-    <ThemeProvider theme={minimalTheme}>
-      <CssBaseline />
-      <Router>
-        <Routes>
-          <Route path="/" element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="product-entry" element={<ProductEntry />} />
-            <Route path="product-entry/:id" element={<ProductEntry />} />
-            <Route path="product-management" element={<ProductManagement />} />
-            <Route path="recipe-creation" element={<RecipeCreation />} />
-            <Route path="recipe-management" element={<RecipeManagement />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
-      </Router>
+    <ThemeProvider>
+      <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<DashboardLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="products/add" element={<ProductEntry />} />
+              <Route path="product-entry" element={<ProductEntry />} />
+              <Route path="product-entry/:id" element={<ProductEntry />} />
+              <Route path="products/manage" element={<ProductManagement />} />
+              <Route path="product-management" element={<ProductManagement />} />
+              <Route path="recipes/create" element={<RecipeCreation />} />
+              <Route path="recipe-creation" element={<RecipeCreation />} />
+              <Route path="recipes/manage" element={<RecipeManagement />} />
+              <Route path="recipe-management" element={<RecipeManagement />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </SnackbarProvider>
     </ThemeProvider>
   );
 }

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Card,
+  Container,
   Typography,
   TextField,
   Table,
@@ -13,24 +15,32 @@ import {
   IconButton,
   Chip,
   InputAdornment,
+  CircularProgress,
+  Alert,
+  AlertTitle,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Divider,
+  Stack,
 } from '@mui/material';
-import {
-  Visibility as VisibilityIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Search as SearchIcon,
-} from '@mui/icons-material';
-import { recipesAPI } from '../services/api';
+import { useSnackbar } from 'notistack';
+import Iconify from '../components/iconify/Iconify';
+import api from '../services/api';
 import { formatDate } from '../utils/helpers';
-import Loading from '../components/Common/Loading';
-import ErrorMessage from '../components/Common/ErrorMessage';
 
 export default function RecipeManagement() {
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const [recipes, setRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
   useEffect(() => {
     loadRecipes();
@@ -43,10 +53,12 @@ export default function RecipeManagement() {
   const loadRecipes = async () => {
     try {
       setLoading(true);
-      const response = await recipesAPI.getAll();
-      setRecipes(response.data || []);
+      setError(null);
+      const data = await api.get('/api/recipes');
+      setRecipes(data || []);
     } catch (err) {
       setError(err);
+      enqueueSnackbar(err.message || 'Failed to load recipes', { variant: 'error' });
     } finally {
       setLoading(false);
     }
@@ -72,20 +84,56 @@ export default function RecipeManagement() {
     }
 
     try {
-      await recipesAPI.delete(id);
+      await api.delete(`/api/recipes/${id}`);
+      enqueueSnackbar('Recipe deleted successfully', { variant: 'success' });
       loadRecipes();
     } catch (err) {
       setError(err);
+      enqueueSnackbar(err.message || 'Failed to delete recipe', { variant: 'error' });
     }
   };
 
+  const handleViewDetails = async (recipe) => {
+    try {
+      const data = await api.get(`/api/recipes/${recipe.id}`);
+      setSelectedRecipe(data);
+      setDetailsDialogOpen(true);
+    } catch (err) {
+      enqueueSnackbar(err.message || 'Failed to load recipe details', { variant: 'error' });
+    }
+  };
+
+  const handleEdit = (recipe) => {
+    navigate(`/recipe-creation/${recipe.id}`);
+  };
+
+  const handleCloseDialog = () => {
+    setDetailsDialogOpen(false);
+    setSelectedRecipe(null);
+  };
+
   if (loading) {
-    return <Loading message="Loading recipes..." />;
+    return (
+      <Container maxWidth="xl">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
   }
 
   return (
-    <Box>
-      {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
+    <Container maxWidth="xl">
+      {error && (
+        <Alert
+          severity="error"
+          onClose={() => setError(null)}
+          sx={{ mb: 3, borderRadius: 2 }}
+        >
+          <AlertTitle>Error</AlertTitle>
+          {error.message || 'An error occurred'}
+        </Alert>
+      )}
 
       {/* Page Header */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -120,7 +168,7 @@ export default function RecipeManagement() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ color: 'text.secondary' }} />
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.secondary' }} />
                 </InputAdornment>
               ),
             }}
@@ -148,14 +196,14 @@ export default function RecipeManagement() {
                   </TableCell>
                   <TableCell>{formatDate(recipe.created_at)}</TableCell>
                   <TableCell align="right">
-                    <IconButton size="small" color="info">
-                      <VisibilityIcon />
+                    <IconButton size="small" color="info" onClick={() => handleViewDetails(recipe)}>
+                      <Iconify icon="eva:eye-fill" width={20} />
                     </IconButton>
-                    <IconButton size="small" color="primary">
-                      <EditIcon />
+                    <IconButton size="small" color="primary" onClick={() => handleEdit(recipe)}>
+                      <Iconify icon="eva:edit-fill" width={20} />
                     </IconButton>
                     <IconButton size="small" color="error" onClick={() => handleDelete(recipe.id)}>
-                      <DeleteIcon />
+                      <Iconify icon="eva:trash-2-fill" width={20} />
                     </IconButton>
                   </TableCell>
                 </TableRow>
@@ -172,6 +220,113 @@ export default function RecipeManagement() {
           </Box>
         )}
       </Card>
-    </Box>
+
+      {/* Recipe Details Dialog */}
+      <Dialog
+        open={detailsDialogOpen}
+        onClose={handleCloseDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Iconify icon="eva:file-text-fill" width={28} />
+            <Typography variant="h5" component="span" sx={{ fontWeight: 700 }}>
+              Recipe Details
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <Divider />
+        <DialogContent>
+          {selectedRecipe && (
+            <Stack spacing={3}>
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                  Recipe Name
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  {selectedRecipe.name}
+                </Typography>
+              </Box>
+
+              {selectedRecipe.description && (
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                    Description
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedRecipe.description}
+                  </Typography>
+                </Box>
+              )}
+
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                  Created Date
+                </Typography>
+                <Typography variant="body1">
+                  {formatDate(selectedRecipe.created_at)}
+                </Typography>
+              </Box>
+
+              {selectedRecipe.ingredients && selectedRecipe.ingredients.length > 0 && (
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{ mb: 2 }}>
+                    Ingredients ({selectedRecipe.ingredients.length})
+                  </Typography>
+                  <TableContainer component={Box} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell><strong>Product</strong></TableCell>
+                          <TableCell align="right"><strong>Quantity</strong></TableCell>
+                          <TableCell><strong>Unit</strong></TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {selectedRecipe.ingredients.map((ingredient, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{ingredient.product_name || ingredient.product_id}</TableCell>
+                            <TableCell align="right">{ingredient.quantity}</TableCell>
+                            <TableCell>{ingredient.unit || '-'}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              )}
+
+              {selectedRecipe.total_cost && (
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                    Total Cost
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
+                    ${Number(selectedRecipe.total_cost).toFixed(2)}
+                  </Typography>
+                </Box>
+              )}
+            </Stack>
+          )}
+        </DialogContent>
+        <Divider />
+        <DialogActions sx={{ p: 2.5 }}>
+          <Button onClick={handleCloseDialog} variant="outlined" startIcon={<Iconify icon="eva:close-fill" />}>
+            Close
+          </Button>
+          <Button
+            onClick={() => {
+              handleCloseDialog();
+              handleEdit(selectedRecipe);
+            }}
+            variant="contained"
+            startIcon={<Iconify icon="eva:edit-fill" />}
+          >
+            Edit Recipe
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
   );
 }
