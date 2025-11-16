@@ -55,9 +55,14 @@ export default function RecipeManagement() {
       setLoading(true);
       setError(null);
       const data = await api.get('/api/recipes');
-      setRecipes(data || []);
+      // Ensure data is an array
+      const recipesArray = Array.isArray(data) ? data : [];
+      setRecipes(recipesArray);
+      setFilteredRecipes(recipesArray);
     } catch (err) {
       setError(err);
+      setRecipes([]);
+      setFilteredRecipes([]);
       enqueueSnackbar(err.message || 'Failed to load recipes', { variant: 'error' });
     } finally {
       setLoading(false);
@@ -65,14 +70,20 @@ export default function RecipeManagement() {
   };
 
   const filterRecipes = () => {
+    // Ensure recipes is an array
+    if (!Array.isArray(recipes)) {
+      setFilteredRecipes([]);
+      return;
+    }
+
     if (!searchQuery.trim()) {
       setFilteredRecipes(recipes);
       return;
     }
-    
+
     const query = searchQuery.toLowerCase();
     const filtered = recipes.filter(recipe =>
-      recipe.name.toLowerCase().includes(query) ||
+      recipe.name?.toLowerCase().includes(query) ||
       recipe.description?.toLowerCase().includes(query)
     );
     setFilteredRecipes(filtered);
@@ -187,7 +198,7 @@ export default function RecipeManagement() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredRecipes.map((recipe) => (
+              {Array.isArray(filteredRecipes) && filteredRecipes.map((recipe) => (
                 <TableRow key={recipe.id} hover>
                   <TableCell>{recipe.name}</TableCell>
                   <TableCell>{recipe.description || '-'}</TableCell>
@@ -212,7 +223,7 @@ export default function RecipeManagement() {
           </Table>
         </TableContainer>
 
-        {filteredRecipes.length === 0 && (
+        {Array.isArray(filteredRecipes) && filteredRecipes.length === 0 && (
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <Typography color="text.secondary">
               {searchQuery ? 'No recipes found matching your search.' : 'No recipes created yet.'}
