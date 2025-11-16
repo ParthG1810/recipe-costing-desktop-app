@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { NavLink as RouterLink } from 'react-router-dom';
+import { NavLink as RouterLink, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 // @mui
 import {
@@ -76,6 +76,7 @@ NavItem.propTypes = {
 
 function NavItem({ item }) {
   const { title, path, icon, children } = item;
+  const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
 
   const hasChildren = children && children.length > 0;
@@ -102,7 +103,7 @@ function NavItem({ item }) {
                 key={child.title}
                 component={RouterLink}
                 to={child.path}
-                active={location.pathname === child.path}
+                active={pathname === child.path}
                 sx={{ pl: 4 }}
               >
                 <ListItemText disableTypography primary={child.title} />
@@ -118,7 +119,7 @@ function NavItem({ item }) {
     <StyledNavItem
       component={RouterLink}
       to={path}
-      active={location.pathname === path}
+      active={pathname === path}
     >
       <StyledNavItemIcon>{icon}</StyledNavItemIcon>
       <ListItemText disableTypography primary={title} />
