@@ -137,17 +137,40 @@ export default function RecipeCreation() {
   const totalCost = calculateTotalCost();
 
   return (
-    <Box className="fade-in">
+    <Box>
       {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
+
+      {/* Page Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+          Create New Recipe
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Build your recipe with ingredients and calculate the total cost
+        </Typography>
+      </Box>
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+          <Card elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+            {/* Card Header */}
+            <Box
+              sx={{
+                background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                p: 3,
+                color: 'white',
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Recipe Details
+              </Typography>
+              <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
+                Enter the name and ingredients for your recipe
+              </Typography>
+            </Box>
+
             <CardContent sx={{ p: 4 }}>
               <form onSubmit={handleSubmit}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
-                  Recipe Information
-                </Typography>
 
                 <Grid container spacing={3}>
                   <Grid item xs={12}>
@@ -269,21 +292,62 @@ export default function RecipeCreation() {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', position: 'sticky', top: 24 }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+          <Card
+            elevation={0}
+            sx={{
+              borderRadius: 4,
+              border: '1px solid',
+              borderColor: 'divider',
+              position: 'sticky',
+              top: 24,
+              overflow: 'hidden',
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
+            }}
+          >
+            <Box
+              sx={{
+                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                p: 3,
+                color: 'white',
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 Cost Summary
               </Typography>
-              <Divider sx={{ my: 2 }} />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="body1">Total Recipe Cost:</Typography>
-                <Typography variant="h5" color="primary" sx={{ fontWeight: 700 }}>
+              <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
+                Real-time cost calculation
+              </Typography>
+            </Box>
+            <CardContent sx={{ p: 4 }}>
+              <Box
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                  mb: 3,
+                  textAlign: 'center',
+                }}
+              >
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', mb: 1, fontWeight: 600 }}>
+                  Total Recipe Cost
+                </Typography>
+                <Typography variant="h3" sx={{ fontWeight: 800, color: 'white' }}>
                   {formatPrice(totalCost)}
                 </Typography>
               </Box>
-              <Typography variant="caption" color="text.secondary">
-                Based on default vendor pricing
-              </Typography>
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                  border: '1px solid',
+                  borderColor: 'rgba(16, 185, 129, 0.2)',
+                }}
+              >
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center' }}>
+                  Based on default vendor pricing
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>

@@ -84,24 +84,48 @@ export default function RecipeManagement() {
   }
 
   return (
-    <Box className="fade-in">
+    <Box>
       {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
 
-      <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', p: 3 }}>
-        <TextField
-          fullWidth
-          placeholder="Search recipes..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ mb: 3 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
+      {/* Page Header */}
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+            Recipe Management
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            View, search, and manage all your recipes
+          </Typography>
+        </Box>
+        <Chip
+          label={`${filteredRecipes.length} Recipes`}
+          sx={{
+            background: 'linear-gradient(135deg, #EC4899 0%, #DB2777 100%)',
+            color: 'white',
+            fontWeight: 700,
+            fontSize: '0.95rem',
+            px: 2,
+            py: 2.5,
           }}
         />
+      </Box>
+
+      <Card elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+        <Box sx={{ p: 3, backgroundColor: 'background.default' }}>
+          <TextField
+            fullWidth
+            placeholder="Search recipes by name or description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: 'text.secondary' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
 
         <TableContainer>
           <Table>

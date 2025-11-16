@@ -155,18 +155,40 @@ export default function ProductEntry() {
   }
 
   return (
-    <Box className="fade-in">
+    <Box>
       {error && <ErrorMessage error={error} onClose={() => setError(null)} />}
 
-      <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+      {/* Page Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+          {isEditMode ? 'Edit Product' : 'Add New Product'}
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          {isEditMode ? 'Update product details and vendor pricing' : 'Create a new product with vendor pricing information'}
+        </Typography>
+      </Box>
+
+      <Card elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+        {/* Card Header */}
+        <Box
+          sx={{
+            background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+            p: 3,
+            color: 'white',
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            Product Details
+          </Typography>
+          <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
+            Enter the basic information about your product
+          </Typography>
+        </Box>
+
         <CardContent sx={{ p: 4 }}>
           <form onSubmit={handleSubmit}>
             {/* Product Information */}
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
-              Product Information
-            </Typography>
-
-            <Grid container spacing={3}>
+            <Grid container spacing={3} sx={{ mb: 4 }}>
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
@@ -213,19 +235,70 @@ export default function ProductEntry() {
                 elevation={0}
                 sx={{
                   p: 3,
-                  mb: 2,
-                  backgroundColor: 'background.default',
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: 2,
+                  mb: 3,
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
+                  border: '2px solid',
+                  borderColor: vendor.is_default ? 'primary.main' : 'divider',
+                  borderRadius: 3,
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    borderColor: 'primary.light',
+                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.1)',
+                  },
                 }}
               >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                    Vendor {index + 1}
-                  </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 2,
+                        background: vendor.is_default
+                          ? 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)'
+                          : 'linear-gradient(135deg, #E2E8F0 0%, #CBD5E1 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: vendor.is_default ? 'white' : 'text.secondary',
+                        fontWeight: 700,
+                        fontSize: '1.1rem',
+                      }}
+                    >
+                      {index + 1}
+                    </Box>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                      Vendor {index + 1}
+                      {vendor.is_default && (
+                        <Typography
+                          component="span"
+                          sx={{
+                            ml: 1,
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: 1,
+                            background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                            color: 'white',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                          }}
+                        >
+                          Default
+                        </Typography>
+                      )}
+                    </Typography>
+                  </Box>
                   {formData.vendors.length > 1 && (
-                    <IconButton onClick={() => removeVendor(index)} color="error" size="small">
+                    <IconButton
+                      onClick={() => removeVendor(index)}
+                      sx={{
+                        color: 'error.main',
+                        '&:hover': {
+                          backgroundColor: 'error.lighter',
+                          transform: 'scale(1.1)',
+                        },
+                      }}
+                    >
                       <DeleteIcon />
                     </IconButton>
                   )}
