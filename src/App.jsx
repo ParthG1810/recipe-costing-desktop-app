@@ -10,14 +10,17 @@ import ProductEntry from './pages/ProductEntry';
 import ProductManagement from './pages/ProductManagement';
 import RecipeCreation from './pages/RecipeCreation';
 import RecipeManagement from './pages/RecipeManagement';
+// components
+import ErrorBoundary from './components/ErrorBoundary';
 
 // ----------------------------------------------------------------------
 
 function App() {
   return (
-    <ThemeProvider>
-      <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-        <BrowserRouter>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+          <BrowserRouter>
           <Routes>
             <Route path="/" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
@@ -35,6 +38,7 @@ function App() {
         </BrowserRouter>
       </SnackbarProvider>
     </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

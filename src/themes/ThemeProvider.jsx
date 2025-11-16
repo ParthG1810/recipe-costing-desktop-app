@@ -13,7 +13,7 @@ import typography from './typography';
 import shadows from './shadows';
 import customShadows from './customShadows';
 import componentsOverride from './overrides';
-import GlobalStyles from './globalStyles.jsx';
+import GlobalStyles from './globalStyles';
 
 // ----------------------------------------------------------------------
 
